@@ -1,8 +1,9 @@
 import React from 'react'
+import useWorkoutsContext from '../hooks/useWorkoutsContext'
 
 function WorkoutDetails(props) {
     const {title, reps, load, createdAt, _id} = props.workout
-    const setWorkouts = props.setWorkouts
+    const {dispatch} = useWorkoutsContext()
 
     // Delete request to erase from Database
     const handleDelete = async ()=>{
@@ -11,10 +12,7 @@ function WorkoutDetails(props) {
             headers: {"Content-Type": "application/json"}
         })
         if(response.ok){
-            // Filter that item from the state in "Home" page
-            setWorkouts((prevState)=>{
-                return prevState.filter(item=> item._id!=_id)
-            })
+            dispatch({type: "DELETE_WORKOUT", payload: _id})
         }
     }
 

@@ -1,9 +1,10 @@
 import {useEffect, useState} from 'react'
 import WorkoutDetails from '../components/WorkoutDetails'
 import WorkoutForm from '../components/WorkoutForm'
+import useWorkoutsContext from '../hooks/useWorkoutsContext'
 
 function Home() {
-  const [workouts, setWorkouts] = useState(null)
+  const {workouts, dispatch} = useWorkoutsContext()
 
   // Fetch data
   useEffect(() => {
@@ -12,7 +13,8 @@ function Home() {
       const data = await response.json()
       
       if(response.ok){
-        setWorkouts(data)
+        // dispatch(action) --> action is the object that the reducer will take
+        dispatch({type: "SET_ALL_WORKOUTS", payload: data})
       }
     }
     fetchWorkouts()
@@ -22,11 +24,11 @@ function Home() {
     <div className='home'>
       <div className='workouts'>
         {workouts && workouts.map((workout)=>(
-          <WorkoutDetails key={workout._id} workout={workout} setWorkouts={setWorkouts}/>
+          <WorkoutDetails key={workout._id} workout={workout} />
         ))}
       </div>
       <div>
-        <WorkoutForm setWorkouts={setWorkouts} />
+        <WorkoutForm />
       </div>
     </div>
   )

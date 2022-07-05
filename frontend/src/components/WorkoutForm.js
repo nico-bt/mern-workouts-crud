@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
+import useWorkoutsContext from '../hooks/useWorkoutsContext'
 
 function WorkoutForm({setWorkouts}) {
     const [title, setTitle] = useState("")
     const [load, setLoad] = useState("")
     const [reps, setReps] = useState("")
     const [error, setError] = useState(null)
+    const {workouts, dispatch} = useWorkoutsContext()
 
     const handleSubmit = async (e)=>{
         e.preventDefault()
@@ -28,8 +30,9 @@ function WorkoutForm({setWorkouts}) {
             setLoad("")
             setReps("")
             // Pass the new workout to "Home" page, this will make it re-render without fetching all
-            setWorkouts((prev)=>{
-                return [json, ...prev]
+            dispatch({
+                type: "CREATE_WORKOUT",
+                payload: json
             })
         }
     }
