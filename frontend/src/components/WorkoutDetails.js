@@ -24,7 +24,7 @@ function WorkoutDetails(props) {
         <h4>{title}</h4>
         <p><strong>Load (kg): </strong>{load}</p>
         <p><strong>Reps: </strong>{reps}</p>
-        <p>Created: {formatDistanceToNow( new Date(createdAt), { addSuffix: true })}</p>
+        <p className='time'>Created: {formatDistanceToNow( new Date(createdAt), { addSuffix: true })}</p>
         <span className='material-symbols-outlined' onClick={handleDelete}>Delete</span>
     </div>
   )
