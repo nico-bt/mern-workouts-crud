@@ -6,6 +6,7 @@ function WorkoutForm({setWorkouts}) {
     const [load, setLoad] = useState("")
     const [reps, setReps] = useState("")
     const [error, setError] = useState(null)
+    const [emptyFields, setEmptyFields] = useState([])
     const {workouts, dispatch} = useWorkoutsContext()
 
     const handleSubmit = async (e)=>{
@@ -22,13 +23,15 @@ function WorkoutForm({setWorkouts}) {
 
         if(!response.ok){
             setError(json.error)
+            setEmptyFields(json.emptyFields)
         }
         if(response.ok){
             // Reset the form
-            setError(null)
             setTitle("")
             setLoad("")
             setReps("")
+            setError(null)
+            setEmptyFields([])
             // Pass the new workout to "Home" page, this will make it re-render without fetching all
             dispatch({
                 type: "CREATE_WORKOUT",
@@ -42,13 +45,28 @@ function WorkoutForm({setWorkouts}) {
         <h3>Add a New Exercise</h3>
 
         <label>Excercise: </label>
-        <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value)}}></input>
+        <input 
+            type="text" 
+            value={title} 
+            onChange={(e)=>{setTitle(e.target.value)}}
+            className= {emptyFields.includes("title")? "error" : ""}>
+        </input>
         
         <label>Load (kg): </label>
-        <input type="number" value={load} onChange={(e)=>{setLoad(e.target.value)}}></input>
+        <input 
+            type="number" 
+            value={load} 
+            onChange={(e)=>{setLoad(e.target.value)}}
+            className= {emptyFields.includes("load")? "error" : ""}>
+        </input>
         
         <label>Reps: </label>
-        <input type="number" min={1} value={reps} onChange={(e)=>{setReps(e.target.value)}}></input>
+        <input 
+            type="number" min={1} 
+            value={reps} 
+            onChange={(e)=>{setReps(e.target.value)}}
+            className= {emptyFields.includes("reps")? "error" : ""}>
+        </input>
 
         <button type='submit'>Add Exercise</button>
 
