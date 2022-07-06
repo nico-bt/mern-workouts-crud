@@ -57,8 +57,12 @@ header a {
 }
 .workout-details p {
   margin: 0;
-  font-size: 0.9em;
+  padding-bottom: 10px;
+  font-size: 1em;
   color: #555;
+}
+.workout-details p.time{
+  font-size: 0.8em;
 }
 .workout-details span {
   position: absolute;
