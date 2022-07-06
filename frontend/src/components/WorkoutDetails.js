@@ -1,6 +1,9 @@
 import React from 'react'
 import useWorkoutsContext from '../hooks/useWorkoutsContext'
 
+//Date format
+import {formatDistanceToNow} from "date-fns"
+
 function WorkoutDetails(props) {
     const {title, reps, load, createdAt, _id} = props.workout
     const {dispatch} = useWorkoutsContext()
@@ -21,8 +24,8 @@ function WorkoutDetails(props) {
         <h4>{title}</h4>
         <p><strong>Load (kg): </strong>{load}</p>
         <p><strong>Reps: </strong>{reps}</p>
-        <p>Created at: {createdAt}</p>
-        <span onClick={handleDelete}>Delete</span>
+        <p>Created: {formatDistanceToNow( new Date(createdAt), { addSuffix: true })}</p>
+        <span className='material-symbols-outlined' onClick={handleDelete}>Delete</span>
     </div>
   )
 }
