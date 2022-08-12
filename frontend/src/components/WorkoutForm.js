@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+import { AuthContext } from '../context/AuthContext'
 import useWorkoutsContext from '../hooks/useWorkoutsContext'
 
 function WorkoutForm({setWorkouts}) {
@@ -7,23 +8,34 @@ function WorkoutForm({setWorkouts}) {
     const [reps, setReps] = useState("")
     const [error, setError] = useState(null)
     const [emptyFields, setEmptyFields] = useState([])
-    const {workouts, dispatch} = useWorkoutsContext()
+    const { dispatch }  = useWorkoutsContext()
+    const { state } = useContext(AuthContext)
 
     const handleSubmit = async (e)=>{
         e.preventDefault()
+
+        // Can't submit if you are not logged in
+        if(!state.token){ 
+            return 
+        }
         const newWorkout = {title, load, reps}
         
         // Send newWorkout to Database via a POST request
         const response = await fetch("http://localhost:4000/api/workouts", {
             method: "POST",
             body: JSON.stringify(newWorkout),
-            headers: {"Content-Type": "application/json"}
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${state.token}`
+            }
         })
         const json = await response.json()
 
         if(!response.ok){
             setError(json.error)
-            setEmptyFields(json.emptyFields)
+            if(json.emptyFields) {
+                setEmptyFields(json.emptyFields)
+            }
         }
         if(response.ok){
             // Reset the form

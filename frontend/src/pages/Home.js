@@ -1,24 +1,33 @@
-import {useEffect} from 'react'
+import {useContext, useEffect} from 'react'
 import WorkoutDetails from '../components/WorkoutDetails'
 import WorkoutForm from '../components/WorkoutForm'
+import { AuthContext } from '../context/AuthContext'
 import useWorkoutsContext from '../hooks/useWorkoutsContext'
 
 function Home() {
   const {workouts, dispatch} = useWorkoutsContext()
+  const {state} = useContext(AuthContext)
 
   // Fetch data
   useEffect(() => {
     const fetchWorkouts = async ()=>{
-      const response = await fetch("http://localhost:4000/api/workouts")
+      const response = await fetch("http://localhost:4000/api/workouts", {
+        headers: {
+          "Authorization": `Bearer ${state.token}`
+        }
+      })
       const data = await response.json()
       
       if(response.ok){
-        // dispatch(action) --> action is the object that the reducer will take
         dispatch({type: "SET_ALL_WORKOUTS", payload: data})
       }
     }
-    fetchWorkouts()
-  }, [dispatch])
+
+    // Fetch data only if user is logged in
+    if(state.token) {
+      fetchWorkouts()
+    }
+  }, [dispatch, state.token])
   
   return (
     <div className='home'>
