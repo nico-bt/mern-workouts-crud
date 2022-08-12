@@ -12,20 +12,17 @@ const app = express()
 var cors = require('cors')
 app.use(cors())
 
-//Routes
+// Routes imports
 workoutRoutes = require("./routes/workouts")
+userRoutes = require("./routes/user")
 
 //Middleware
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-app.use((req, res, next)=>{
-    console.log(req.method + " --> " + req.url)
-    next()
-})
-
 //Routes
 app.use("/api/workouts", workoutRoutes)
+app.use("/api/user", userRoutes)
 
 //Connect to DB and run app
 mongoose.connect(process.env.MONGODB_URI)

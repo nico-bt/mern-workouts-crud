@@ -1,15 +1,19 @@
 const mongoose = require("mongoose")
 const Workout = require("../models/workoutModel")
 
+// Get all workouts for specific user (user._id is passed via requireAuth middleware in req.user)
+// ---------------------------------------------------------------------------------------------------------
 const getAllWorkouts = async (req, res)=>{
     try {
-        const workouts = await Workout.find({}).sort({createdAt: -1})
+        const workouts = await Workout.find({user: req.user}).sort({createdAt: -1})
         res.status(200).json(workouts)
     } catch (error) {
         res.status(400).json(error.message)
     }
 }
 
+// Create a new workout
+// ---------------------------------------------------------------------------------------------------------
 const createNewWorkout = async (req, res)=>{
     const {title, reps, load} = req.body
     
@@ -22,15 +26,17 @@ const createNewWorkout = async (req, res)=>{
     if(emptyFields.length>0){
         return res.status(400).json({error: "Please fill in all the fields", emptyFields})
     }
-
+    
     try {
-        const workout = await Workout.create({title, reps, load})
+        const workout = await Workout.create({title, reps, load, user: req.user})
         res.status(200).json(workout)
     } catch (error) {
         res.status(400).json({error: error.message})
     }
 }
 
+// Get a single workout
+// ---------------------------------------------------------------------------------------------------------
 const getSingleWorkout = async (req, res)=>{
     // Check if the passed id is a valid mongoDb type
     if(!mongoose.isValidObjectId(req.params.id)){
@@ -42,22 +48,8 @@ const getSingleWorkout = async (req, res)=>{
         if(!workout){
             return res.status(400).json({error: "No such workout in db"})
         }
-        res.status(200).json(workout)
-    } catch (error) {
-        res.status(400).json(error.message)
-    }
-}
-
-const deleteWorkout = async (req, res)=>{    
-    // Check if the passed id is a valid mongoDb type
-    if(!mongoose.isValidObjectId(req.params.id)){
-        return res.status(400).json({error: "No such workout in db"}) 
-    }
-
-    try {
-        const workout = await Workout.findByIdAndDelete(req.params.id)
-        if(!workout){
-            return res.status(400).json({error: "No such workout in db"})
+        if(req.user != workout.user) {
+            return res.status(401).json({error: "This workout is not yours"})
         }
         res.status(200).json(workout)
     } catch (error) {
@@ -65,6 +57,30 @@ const deleteWorkout = async (req, res)=>{
     }
 }
 
+// Delete a single workout
+// ---------------------------------------------------------------------------------------------------------
+const deleteWorkout = async (req, res)=>{    
+    // Check if the passed id is a valid mongoDb type
+    if(!mongoose.isValidObjectId(req.params.id)){
+        return res.status(400).json({error: "No such workout in db"}) 
+    }
+    
+    try {
+        const workout = await Workout.findByIdAndDelete(req.params.id)
+        if(!workout){
+            return res.status(400).json({error: "No such workout in db"})
+        }
+        if(req.user != workout.user) {
+            return res.status(401).json({error: "This workout is not yours"})
+        }
+        res.status(200).json(workout)
+    } catch (error) {
+        res.status(400).json(error.message)
+    }
+}
+
+// Update a workout
+// ---------------------------------------------------------------------------------------------------------
 const updateWorkout = async(req, res)=>{
     try {
         const updatedWorkout = await Workout.findByIdAndUpdate(req.params.id, {...req.body}, {new: true})
@@ -73,5 +89,6 @@ const updateWorkout = async(req, res)=>{
         res.status(400).json(error.message)
     }
 }
+
 
 module.exports = {getAllWorkouts, createNewWorkout, getSingleWorkout, deleteWorkout, updateWorkout}

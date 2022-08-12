@@ -6,6 +6,9 @@ const Workout = require("../models/workoutModel")
 // Controllers
 const {getAllWorkouts, createNewWorkout, getSingleWorkout, deleteWorkout, updateWorkout} = require("../controllers/workoutControllers")
 
+// Middleware for authorization
+router.use(require("../middleware/requireAuth"))
+
 // GET all workouts | endpoint: /api/workouts/
 router.get("/", getAllWorkouts)
 
