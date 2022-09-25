@@ -48,7 +48,8 @@ const getSingleWorkout = async (req, res)=>{
         if(!workout){
             return res.status(400).json({error: "No such workout in db"})
         }
-        if(req.user != workout.user) {
+        // Check if workout item belogns to user. toString() para comparar mongoDB Objects
+        if((req.user).toString() !== (workout.user).toString()) {
             return res.status(401).json({error: "This workout is not yours"})
         }
         res.status(200).json(workout)
@@ -66,14 +67,19 @@ const deleteWorkout = async (req, res)=>{
     }
     
     try {
-        const workout = await Workout.findByIdAndDelete(req.params.id)
+        const workout = await Workout.findById(req.params.id)
         if(!workout){
             return res.status(400).json({error: "No such workout in db"})
         }
-        if(req.user != workout.user) {
+
+        // Check if workout item belogns to user. toString() para comparar mongoDB Objects
+        if(req.user.toString() !== workout.user.toString()) {
             return res.status(401).json({error: "This workout is not yours"})
+        } else {
+            await workout.delete()
+            res.status(200).json(workout)
         }
-        res.status(200).json(workout)
+        
     } catch (error) {
         res.status(400).json(error.message)
     }
@@ -82,9 +88,25 @@ const deleteWorkout = async (req, res)=>{
 // Update a workout
 // ---------------------------------------------------------------------------------------------------------
 const updateWorkout = async(req, res)=>{
+    // Check if the passed id is a valid mongoDb type
+    if(!mongoose.isValidObjectId(req.params.id)){
+        return res.status(400).json({error: "No such workout in db"}) 
+    }
+    
     try {
-        const updatedWorkout = await Workout.findByIdAndUpdate(req.params.id, {...req.body}, {new: true})
-        res.status(200).json(updatedWorkout)
+        const workout = await Workout.findById(req.params.id)
+        if(!workout){
+            return res.status(400).json({error: "No such workout in db"})
+        }
+
+        // Check if workout item belogns to user. toString() para comparar mongoDB Objects
+        if(req.user.toString() !== workout.user.toString()) {
+            return res.status(401).json({error: "This workout is not yours"})
+        } else {
+            const updatedWorkout = await Workout.findByIdAndUpdate(req.params.id, {...req.body}, {new: true})
+            return res.status(200).json(updatedWorkout)
+        }
+        
     } catch (error) {
         res.status(400).json(error.message)
     }
